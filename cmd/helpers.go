@@ -2,23 +2,20 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
-func awsAuthentication(cfg aws.Config) {
+// Takes in the aws.Config 
+func(app *application) awsAuthentication() {
 	// Create an sts client to log which account the user is authenticating to
-	stsClient := sts.NewFromConfig(cfg)
+	stsClient := sts.NewFromConfig(app.cfg)
 
 	identity, err := stsClient.GetCallerIdentity(context.TODO(), &sts.GetCallerIdentityInput{})
 	if err != nil {
 		log.Fatalf("failed to get caller identity, %v", err)
 	}
 
-	fmt.Printf("Account: %s\n", *identity.Account)
-	fmt.Printf("UserID: %s\n", *identity.UserId)
-	fmt.Printf("ARN: %s\n", *identity.Arn)
+	app.logger.Info("Caller information", "AccountID", *identity.Account, "UserID", *identity.UserId, "ARN", *identity.Arn)
 }
